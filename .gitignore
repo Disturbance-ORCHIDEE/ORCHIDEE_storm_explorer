@@ -1,0 +1,7 @@
+storm_explorer_data.js
+storm_explorer.html
+*_data.js
+*.html
+!web/template.html
+cache/
+__pycache__/

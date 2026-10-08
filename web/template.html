@@ -1,0 +1,296 @@
+<style>
+/* Layout: control bar, one map per rule, all-storm table, method notes; Forcings tab: rate chart and tables. */
+:root {
+  --bg: #f4f6f7; --panel: #ffffff; --fg: #1d2529; --muted: #5d6a71; --line: #d5dde1;
+  --sea: #dfe9ef; --land: #ffffff; --border: #8d9aa1; --cell-none: #e9eef0;
+  --r1: #67000d; --r2: #cb181d; --r3: #fb6a4a; --r4: #fcbba1;
+  --obs: #0f2f45; --dot: #111111; --accent: #1f5f8b; --accent-soft: #e3eef5; --warn: #9a5b00; --warn-soft: #fbf0dc;
+  --good: #1d6b3a;
+  --c-and: #3a6ea5; --c-peak: #c4572a; --c-gust: #6a2c91; --dfde: #1d2529;
+  --fc-isimip: #3a6ea5; --fc-cordex: #2e8b4a; --fc-era5: #b5452a;
+  --d1: #3d1f0b; --d2: #8c4a12; --d3: #d08a2e; --d4: #f2d29b;
+  --track: #6a2c91; --track-halo: rgba(255,255,255,0.85);
+  --under: #2c6cb0; --ok: #2e8b4a; --over: #e0623f; --over2: #a51f1f;
+  --under-soft: #e1ecf8; --ok-soft: #e2f3e7; --over-soft: #fbe5df;
+  --f-display: Georgia, "Times New Roman", serif;
+  --f-ui: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --f-data: ui-monospace, Menlo, Consolas, "DejaVu Sans Mono", monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12171a; --panel: #1a2125; --fg: #e3e9ec; --muted: #9aa8af; --line: #2e393f;
+  --sea: #142a37; --land: #232c31; --border: #5e6d75; --cell-none: #2d363b;
+  --r1: #ff5a4f; --r2: #f0473a; --r3: #c2412f; --r4: #6e3326;
+  --obs: #9fd3ff; --dot: #f4f4f4; --accent: #7fb8e0; --accent-soft: #1d3442; --warn: #f0b45c; --warn-soft: #3a2c14;
+  --good: #7fd19b;
+  --c-and: #79aee6; --c-peak: #f08a5d; --c-gust: #d7a6ff; --dfde: #e3e9ec;
+  --fc-isimip: #79aee6; --fc-cordex: #6fd394; --fc-era5: #f5926e;
+  --d1: #ffe0a8; --d2: #f0aa4a; --d3: #b8681f; --d4: #5a3413;
+  --track: #d7a6ff; --track-halo: rgba(0,0,0,0.6);
+  --under: #6aa6e6; --ok: #5cc27e; --over: #f08a63; --over2: #ff5a4f;
+  --under-soft: #1b2f45; --ok-soft: #173a25; --over-soft: #45231b; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #12171a; --panel: #1a2125; --fg: #e3e9ec; --muted: #9aa8af; --line: #2e393f;
+  --sea: #142a37; --land: #232c31; --border: #5e6d75; --cell-none: #2d363b;
+  --r1: #ff5a4f; --r2: #f0473a; --r3: #c2412f; --r4: #6e3326;
+  --obs: #9fd3ff; --dot: #f4f4f4; --accent: #7fb8e0; --accent-soft: #1d3442; --warn: #f0b45c; --warn-soft: #3a2c14;
+  --good: #7fd19b;
+  --c-and: #79aee6; --c-peak: #f08a5d; --c-gust: #d7a6ff; --dfde: #e3e9ec;
+  --fc-isimip: #79aee6; --fc-cordex: #6fd394; --fc-era5: #f5926e;
+  --d1: #ffe0a8; --d2: #f0aa4a; --d3: #b8681f; --d4: #5a3413;
+  --track: #d7a6ff; --track-halo: rgba(0,0,0,0.6);
+  --under: #6aa6e6; --ok: #5cc27e; --over: #f08a63; --over2: #ff5a4f;
+  --under-soft: #1b2f45; --ok-soft: #173a25; --over-soft: #45231b; color-scheme: dark }
+body { background: var(--bg); color: var(--fg); font-family: var(--f-ui); font-size: 15px; line-height: 1.45; }
+.wrap { max-width: 1800px; margin: 0 auto; padding-inline: 16px; padding-block: 20px 40px; display: grid; gap: 18px; }
+header h1 { font-family: var(--f-display); font-weight: 600; font-size: 1.7rem; margin: 0; text-wrap: balance; }
+header p { margin: 4px 0 0; color: var(--muted); max-width: 70ch; }
+.controls { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: flex-end; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; }
+.ctl { display: grid; gap: 4px; min-width: 0; }
+.ctl > span { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+select { font: inherit; padding: 5px 8px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); color: var(--fg); max-width: 100%; }
+.seg { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.seg button { font: inherit; font-size: 0.88rem; border: 0; border-right: 1px solid var(--line); background: var(--panel); color: var(--fg); padding: 5px 10px; cursor: pointer; }
+.seg button:last-child { border-right: 0; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--panel); }
+.seg button:disabled { color: var(--line); cursor: not-allowed; }
+.seg button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.note { font-size: 0.86rem; color: var(--muted); }
+.warnbox { background: var(--warn-soft); color: var(--warn); border-radius: 4px; padding: 6px 10px; font-size: 0.88rem; }
+.strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; display: grid; gap: 2px; min-width: 0; }
+.card h3 { margin: 0; font-size: 0.95rem; font-weight: 600; }
+.card .set { font-family: var(--f-data); font-size: 0.72rem; color: var(--muted); overflow-wrap: anywhere; }
+.card .big { font-family: var(--f-data); font-size: 1.55rem; font-variant-numeric: tabular-nums; }
+.card .big small { font-size: 0.85rem; color: var(--muted); }
+.card .row { display: flex; justify-content: space-between; gap: 8px; font-size: 0.85rem; }
+.card .row b { font-family: var(--f-data); font-weight: 500; font-variant-numeric: tabular-nums; }
+.card.best { border-color: var(--good); box-shadow: inset 0 0 0 1px var(--good); }
+.card .tag { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--good); }
+.params { display: grid; gap: 8px; margin: 4px 0 8px; }
+.prm { display: grid; grid-template-columns: 62px minmax(0, 1fr) 46px; gap: 8px; align-items: center; font-size: 0.85rem; }
+.prm label { color: var(--muted); }
+.prm output { font-family: var(--f-data); font-variant-numeric: tabular-nums; text-align: right; }
+.track { position: relative; padding-bottom: 14px; min-width: 0; }
+.track input[type=range] { width: 100%; margin: 0; accent-color: var(--accent); }
+.mk { position: absolute; bottom: 0; transform: translateX(-50%); font-family: var(--f-data); font-size: 0.66rem; line-height: 1; white-space: nowrap; }
+.mk::before { content: ""; display: block; width: 1px; height: 5px; background: currentColor; margin: 0 auto 1px; }
+.mk.opt { color: var(--good); } .mk.orig { color: var(--warn); }
+.presets { display: flex; gap: 6px; flex-wrap: wrap; }
+.presets button { font: inherit; font-size: 0.78rem; padding: 2px 8px; border: 1px solid var(--line); border-radius: 3px; background: var(--panel); color: var(--fg); cursor: pointer; }
+.presets button.on { border-color: var(--accent); color: var(--accent); }
+.mhead { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.stats { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 0.85rem; margin-bottom: 6px; }
+.stats b { font-family: var(--f-data); font-weight: 500; font-variant-numeric: tabular-nums; }
+.stats .rate { font-family: var(--f-data); font-size: 1.25rem; }
+.pill { font-family: var(--f-data); font-variant-numeric: tabular-nums; padding: 0 6px; border-radius: 3px; font-weight: 500; }
+.pill.under { color: var(--under); background: var(--under-soft); }
+.pill.ok { color: var(--ok); background: var(--ok-soft); }
+.pill.over { color: var(--over2); background: var(--over-soft); }
+.map.best { border-color: var(--good); box-shadow: inset 0 0 0 1px var(--good); }
+.maps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 1180px) { .maps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.map { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 8px; min-width: 0; position: relative; }
+.map h4 { margin: 0 0 6px; font-size: 0.9rem; font-weight: 600; }
+.map canvas { width: 100%; display: block; border-radius: 3px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; font-size: 0.82rem; color: var(--muted); }
+.sw { display: inline-block; width: 14px; height: 14px; vertical-align: -2px; margin-right: 4px; border-radius: 2px; }
+.tip { position: fixed; pointer-events: none; background: var(--panel); color: var(--fg); border: 1px solid var(--line); border-radius: 4px; padding: 6px 8px; font-size: 0.8rem; font-family: var(--f-data); box-shadow: 0 2px 8px rgba(0,0,0,.15); z-index: 10; max-width: 280px; }
+section h2 { font-family: var(--f-display); font-weight: 500; font-size: 1.2rem; margin: 6px 0 8px; }
+.tablewrap { overflow-x: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; }
+table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+th, td { padding: 6px 10px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { font-weight: 600; color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; }
+td.num { font-family: var(--f-data); font-variant-numeric: tabular-nums; }
+td.win { color: var(--good); font-weight: 600; }
+tr.sel td { background: var(--accent-soft); }
+tr.click { cursor: pointer; }
+tfoot td { font-weight: 600; border-bottom: 0; }
+.notes { display: grid; gap: 6px; max-width: 85ch; font-size: 0.9rem; }
+.notes p { margin: 0; }
+code { font-family: var(--f-data); font-size: 0.85em; }
+@media (max-width: 640px) { .maps { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 460px) { .strip { grid-template-columns: minmax(0, 1fr); } }
+  details.reps{margin-top:.4rem;font-size:.85em}details.reps ul{max-height:16rem;overflow:auto;margin:.3rem 0;padding-left:1.1rem}details.reps li{margin:.15rem 0}
+.viewtabs { display: flex; flex-wrap: wrap; gap: 0; border-bottom: 1px solid var(--line); }
+.viewtabs button { font: inherit; font-family: var(--f-display); font-size: 1.05rem; background: transparent; color: var(--muted); border: 0; border-bottom: 3px solid transparent; padding: 6px 16px 8px; cursor: pointer; }
+.viewtabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); }
+.viewtabs button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.view { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr); }
+.wrap { grid-template-columns: minmax(0, 1fr); }
+.wrap > *, .view > *, .controls > * { min-width: 0; }
+.chartwrap { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; }
+.chartwrap canvas { width: 100%; display: block; }
+.statusbox { background: var(--accent-soft); color: var(--fg); border-radius: 4px; padding: 6px 10px; font-size: 0.88rem; }
+.sw.line { height: 3px; vertical-align: 3px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1 id="sde-title"></h1>
+    <p id="sde-intro"></p>
+  </header>
+  <nav class="viewtabs" role="tablist" aria-label="View">
+    <button type="button" role="tab" id="tab-detection" data-view="detection" aria-selected="true">Detection</button>
+    <button type="button" role="tab" id="tab-damage" data-view="damage" aria-selected="false">Damage</button>
+    <button type="button" role="tab" id="tab-ddamage" data-view="ddamage" aria-selected="false">Detection &times; Damage</button>
+    <button type="button" role="tab" id="tab-forcings" data-view="forcings" aria-selected="false">Forcings</button>
+  </nav>
+  <div class="view" id="view-detection">
+
+  <div class="controls" role="group" aria-label="Selection">
+    <label class="ctl" for="forcing"><span>Forcing</span><select id="forcing"></select></label>
+    <label class="ctl" for="storm"><span>Storm</span><select id="storm"></select></label>
+    <div class="ctl"><span>Detections</span><div class="seg" id="mode">
+      <button type="button" data-v="online" aria-pressed="true">ORCHIDEE (bench runs)</button>
+      <button type="button" data-v="replay" aria-pressed="false">Offline replay (sliders)</button></div></div>
+    <div class="ctl"><span>Validation set</span><div class="seg" id="vset"></div></div>
+    <div class="ctl" style="min-width:min(100%,300px)"><span>Every rule at the same onset rate</span>
+      <div class="prm" style="grid-template-columns:minmax(0,1fr) 38px"><div class="track"><input type="range" id="level" aria-label="Onsets per cell and decade"></div><output id="levelout" for="level"></output></div>
+      <span class="note sde-range">onsets per cell and decade</span></div>
+    <div class="ctl"><span>Map extent</span><div class="seg" id="extent">
+      <button type="button" data-v="storm" aria-pressed="true">Storm</button>
+      <button type="button" data-v="europe" aria-pressed="false">Europe</button></div></div>
+    <div class="ctl"><span>Storm track</span><div class="seg" id="track">
+      <button type="button" data-v="on" aria-pressed="true">Show</button>
+      <button type="button" data-v="off" aria-pressed="false">Hide</button></div></div>
+    <div class="ctl"><span>Cell colour</span><div class="seg" id="colour">
+      <button type="button" data-v="rank" aria-pressed="true">Storm rank (optimised metric)</button>
+      <button type="button" data-v="fa" aria-pressed="false">Onsets per decade</button></div></div>
+  </div>
+  <div id="forcingnote" class="statusbox"></div>
+  <div id="vnote" class="note"></div>
+
+  
+  <div class="legend" id="legend"></div>
+  <div class="maps" id="maps"></div>
+
+  <section>
+    <h2>All storms for this validation set</h2>
+    <div class="tablewrap"><table id="tab"></table></div>
+    <p class="note">Reported cells detected / reported cells. Click a row to open that storm. Best rule per storm in green; ties are not marked.</p>
+  </section>
+
+  <section>
+    <h2>How to read this</h2>
+    <div class="notes" id="notes-detection"></div>
+  </section>
+  </div>
+  <div class="view" id="view-damage" hidden>
+    <div class="controls" role="group" aria-label="Damage selection">
+      <label class="ctl" for="dstorm"><span>Storm</span><select id="dstorm"></select></label>
+      <div class="ctl"><span>Cell colour</span><div class="seg" id="dcolour">
+        <button type="button" data-v="pct" aria-pressed="true">% of standing volume</button>
+        <button type="button" data-v="ha" aria-pressed="false">m&sup3; per ha of forest</button></div></div>
+      <div class="ctl"><span>Map extent</span><div class="seg" id="dextent">
+        <button type="button" data-v="storm" aria-pressed="true">Storm</button>
+        <button type="button" data-v="europe" aria-pressed="false">Europe</button></div></div>
+    </div>
+    <div id="dstatus" class="statusbox"></div>
+    <div id="dnote" class="note"></div>
+    <div class="legend" id="dlegend"></div>
+    <div class="maps" id="dmaps"></div>
+    <section>
+      <h2>Felled volume per storm</h2>
+      <div class="tablewrap"><table id="dtab"></table></div>
+      <p class="note">Wood felled in the window from 2 days before to 40 days after the storm date (damage is applied when the model ends the storm, after 5 calm days), in million m&sup3;. DFDE is the national wind-damage volume of the storm's calendar year for the countries with reported damage: it covers every storm of that year, so it is an upper reference for one storm. Click a row to open that storm.</p>
+    </section>
+    <section>
+      <h2>Annual wood loss by country and agent</h2>
+      <div class="controls" role="group" aria-label="Country">
+        <label class="ctl" for="dcountry"><span>Country</span><select id="dcountry"></select></label>
+        <div class="ctl"><span>Agent</span><div class="seg" id="dagent">
+          <button type="button" data-v="wind" aria-pressed="true">Wind</button>
+          <button type="button" data-v="beetle" aria-pressed="false">Bark beetle</button>
+          <button type="button" data-v="fire" aria-pressed="false">Fire</button></div></div>
+        <div class="ctl"><span>Scale</span><div class="seg" id="dscale">
+          <button type="button" data-v="log" aria-pressed="true">Logarithmic</button>
+          <button type="button" data-v="lin" aria-pressed="false">Linear</button></div></div>
+      </div>
+      <div class="chartwrap"><canvas id="dchart" role="img" aria-label="Annual felled volume of the simulations against the national reference"></canvas></div>
+      <div class="legend" id="dclegend"></div>
+    </section>
+    <section>
+      <h2>How to read this</h2>
+      <div class="notes" id="notes-damage"></div>
+    </section>
+  </div>
+  <div class="view" id="view-ddamage" hidden>
+    <div class="controls" role="group" aria-label="Detection x damage selection">
+      <label class="ctl" for="ddversion"><span>Version</span><select id="ddversion"></select></label>
+      <label class="ctl" for="ddtune"><span>Damage scaling (run)</span><select id="ddtune"></select></label>
+      <div class="ctl" style="min-width:min(100%,360px)"><span>Detection thresholds (stricter than the run)</span><div class="params" id="ddparams"></div>
+        <div class="presets"><button type="button" id="ddreset">Back to the run setting</button></div></div>
+    </div>
+    <div id="ddnote" class="statusbox"></div>
+    <div class="strip" id="ddstrip"></div>
+    <section>
+      <h2>Disturbed area by region</h2>
+      <div class="tablewrap"><table id="ddtab"></table></div>
+      <p class="note" id="ddperiod"></p>
+    </section>
+    <section>
+      <h2>Against the first threshold</h2>
+      <div class="chartwrap"><canvas id="ddchart" role="img" aria-label="Volume ratio, area ratio, storm ends and outside-storm share against the first detection threshold"></canvas></div>
+      <div class="legend" id="ddlegend"></div>
+    </section>
+    <section>
+      <h2>How to read this</h2>
+      <div class="notes" id="notes-ddamage"></div>
+    </section>
+  </div>
+  <div class="view" id="view-forcings" hidden>
+    <div class="controls" role="group" aria-label="Forcing comparison">
+      <div class="ctl" style="min-width:min(100%,300px)"><span>Onset rate, every rule and forcing</span>
+        <div class="prm" style="grid-template-columns:minmax(0,1fr) 38px"><div class="track"><input type="range" id="fclevel" aria-label="Onsets per cell and decade"></div><output id="fclevelout" for="fclevel"></output></div>
+        <span class="note sde-range">onsets per cell and decade</span></div>
+      <div class="ctl"><span>Validation set</span><div class="seg" id="fcvs"></div></div>
+      <div class="ctl"><span>Storms</span><div class="seg" id="fcset">
+        <button type="button" data-v="common" aria-pressed="true">Common to all forcings</button>
+        <button type="button" data-v="all" aria-pressed="false">All storms of each forcing</button></div></div>
+    </div>
+    <div id="fcstatus" class="statusbox"></div>
+    <section>
+      <h2>Detection against onset rate</h2>
+      <div class="chartwrap"><canvas id="fcchart" role="img" aria-label="Share of reported cells detected against the onset rate, every rule on every forcing"></canvas></div>
+      <div class="legend" id="fclegend"></div>
+      <p class="note" id="fcnote"></p>
+    </section>
+    <section>
+      <h2>At the chosen rate</h2>
+      <div class="tablewrap"><table id="fctab"></table></div>
+      <p class="note">Reported cells detected / reported cells, pooled over the storms, and the setting that gives this rate on that forcing. Best forcing per rule in green.</p>
+    </section>
+    <section>
+      <h2>Per storm, at the chosen rate</h2>
+      <div class="tablewrap"><table id="fcstorms"></table></div>
+    </section>
+    <section>
+      <h2>How to read this</h2>
+      <div class="notes" id="notes-forcings"></div>
+    </section>
+  </div>
+</div>
+<div class="tip" id="tip" hidden></div>
+
+<script>
+/*__DATA__*/
+</script>
+<script>
+/*__FILL__*/
+</script>
+<script>
+/*__APP_detection__*/
+</script>
+<script>
+/*__APP_damage__*/
+</script>
+<script>
+/*__APP_ddamage__*/
+</script>
+<script>
+/*__APP_forcings__*/
+</script>
+<script>
+/*__APP_views__*/
+</script>
